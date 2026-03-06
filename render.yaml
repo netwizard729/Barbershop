@@ -1,19 +1,18 @@
-# render.yaml — Deploy BarberBook to Render with one click
-# 
-# HOW TO USE:
-#   1. Push this entire project to a GitHub repo
-#   2. Go to https://dashboard.render.com → New → Blueprint
-#   3. Connect your GitHub repo — Render will detect this file
-#   4. Click "Apply" — Render creates all 3 services automatically
+# render.yaml — Deploy BarberBook to Render
 #
-# After deploy:
-#   - Copy your backend URL (e.g. https://barberbook-api.onrender.com)
-#   - Set it as VITE_API_URL in your frontend service environment variables
-#   - Copy your frontend URL and set it as FRONTEND_URL in your backend service
+# HOW TO USE:
+#   1. Push this project to GitHub
+#   2. Go to https://dashboard.render.com → New → Blueprint
+#   3. Connect your repo — Render detects this file automatically
+#   4. Click "Apply" — all 3 services are created
+#
+# After first deploy, link frontend ↔ backend:
+#   - Set VITE_API_URL in barberbook-frontend env  → your backend URL
+#   - Set FRONTEND_URL in barberbook-api env        → your frontend URL
 
 services:
 
-  # ── Backend (Django API) ────────────────────────────────────────────────────
+  # ── Backend (Django API) ──────────────────────────────────────────────────
   - type: web
     name: barberbook-api
     runtime: python
@@ -25,7 +24,7 @@ services:
     healthCheckPath: /api/appointments/services/
     envVars:
       - key: SECRET_KEY
-        generateValue: true          # Render auto-generates a secure key
+        generateValue: true
       - key: DEBUG
         value: "False"
       - key: DATABASE_URL
@@ -33,14 +32,11 @@ services:
           name: barberbook-db
           property: connectionString
       - key: FRONTEND_URL
-        sync: false                  # Fill this in after frontend is deployed
+        sync: false
 
-  # ── Frontend (React static site) ───────────────────────────────────────────
-  - type: web
+  # ── Frontend (React static site) ─────────────────────────────────────────
+  - type: static
     name: barberbook-frontend
-    runtime: static
-    region: oregon
-    plan: free
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: "./dist"
@@ -51,15 +47,4 @@ services:
     routes:
       - type: rewrite
         source: "/*"
-        destination: "/index.html"   # SPA routing — all paths serve index.html
-    envVars:
-      - key: VITE_API_URL
-        sync: false                  # Fill this in with your backend URL
-
-# ── PostgreSQL Database ─────────────────────────────────────────────────────
-databases:
-  - name: barberbook-db
-    region: oregon
-    plan: free
-    databaseName: barbershop_db
-    user: barbershop
+        destination: "/index.html"

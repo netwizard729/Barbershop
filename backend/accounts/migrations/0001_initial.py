@@ -43,10 +43,5 @@ class Migration(migrations.Migration):
             ],
         ),
     ]
-```
 
-Click **Commit changes**.
-
-Then do the same for:
-```
-https://github.com/netwizard729/Barbershop/blob/main/backend/appointments/migrations/0001_initial.py
+Then d

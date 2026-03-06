@@ -1,15 +1,3 @@
-# render.yaml — Deploy BarberBook to Render
-#
-# HOW TO USE:
-#   1. Push this project to GitHub
-#   2. Go to https://dashboard.render.com → New → Blueprint
-#   3. Connect your repo — Render detects this file automatically
-#   4. Click "Apply" — all 3 services are created
-#
-# After first deploy, link frontend ↔ backend:
-#   - Set VITE_API_URL in barberbook-frontend env  → your backend URL
-#   - Set FRONTEND_URL in barberbook-api env        → your frontend URL
-
 services:
 
   # ── Backend (Django API) ──────────────────────────────────────────────────
@@ -35,8 +23,9 @@ services:
         sync: false
 
   # ── Frontend (React static site) ─────────────────────────────────────────
-  - type: static
+  - type: web
     name: barberbook-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: "npm install && npm run build"
     staticPublishPath: "./dist"
@@ -48,3 +37,14 @@ services:
       - type: rewrite
         source: "/*"
         destination: "/index.html"
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+
+# ── PostgreSQL Database ───────────────────────────────────────────────────
+databases:
+  - name: barberbook-db
+    region: oregon
+    plan: free
+    databaseName: barbershop_db
+    user: barbershop
